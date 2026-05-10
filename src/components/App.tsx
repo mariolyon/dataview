@@ -1,6 +1,6 @@
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {createTRPCClient, httpBatchLink} from '@trpc/client';
-import {useState} from 'react';
+import {useState, useMemo} from 'react';
 import type {AppRouter} from '#/integrations/trpc/router';
 import {TRPCProvider, useTRPC} from '#/integrations/trpc/react';
 import superjson from "superjson";
@@ -19,7 +19,15 @@ import type {Measurement} from "#/types.ts";
 const columnHelper = createColumnHelper<Measurement>()
 
 const columns = [
+  columnHelper.accessor('id', {
+    cell: (info) => info.getValue(),
+    footer: (info) => info.column.id,
+  }),
   columnHelper.accessor('client_id', {
+    cell: (info) => info.getValue(),
+    footer: (info) => info.column.id,
+  }),
+  columnHelper.accessor('date_testing', {
     cell: (info) => info.getValue(),
     footer: (info) => info.column.id,
   })
@@ -29,21 +37,19 @@ function Measurements() {
   const trpc = useTRPC();
 
   const loadQuery =
-    useQuery(trpc.measurements.load.queryOptions({page: 1}));
+    useQuery(trpc.measurements.load.queryOptions());
 
-  const defaultData: Measurement[] = []
-  const [data, setData] = useState(() => [...defaultData])
-  setData(loadQuery.data || [])
+  const data = loadQuery.data
 
   const table = useReactTable({
-    data,
+    data: data ?? [],
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
 
   return (
     <div className="p-2">
-      <table>
+      <table cellPadding={5}>
         <thead>
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>
@@ -111,7 +117,7 @@ export function App() {
     createTRPCClient<AppRouter>({
       links: [
         httpBatchLink({
-          url: 'http://localhost:3000',
+          url: '/api/trpc',
           transformer: superjson,
         }),
       ],

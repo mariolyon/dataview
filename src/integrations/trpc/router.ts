@@ -54,7 +54,7 @@ let measurements: Measurement[] = [
 
 const measurementsRouter = {
   load: publicProcedure
-    .input(z.object({page: z.int().optional()}))
+    .input(z.object({page: z.number().int().optional()}).optional())
     .query(() => measurements)
   ,
   reset: publicProcedure
