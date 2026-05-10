@@ -7,8 +7,25 @@ datasource db {
   provider = "postgresql"
 }
 
-model Todo {
-  id        Int      @id @default(autoincrement())
-  title     String
-  createdAt DateTime @default(now())
+model Measurement {
+    id Int @id @default(autoincrement())
+    client_id String
+    date_testing DateTime
+    date_birthdate DateTime
+    gender Int
+    ethnicity Int
+    creatine Decimal
+    chloride Decimal
+    fasting_glucose Decimal
+    potassium Decimal
+    sodium Decimal
+    total_calcium Decimal
+    total_protein Decimal
+    creatine_unit String
+    chloride_unit String
+    fasting_glucose_unit String
+    potassium_unit String
+    sodium_unit String
+    total_calcium_unit String
+    total_protein_unit String
 }
