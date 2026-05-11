@@ -1,66 +1,73 @@
-import type {TRPCRouterRecord} from "@trpc/server";
-import {z} from "zod";
-import type {Measurement} from "#/types.ts";
-import {publicProcedure, router} from "./init";
-import {prisma} from "#/db.ts";
-import type {MeasurementModel} from "../../generated/prisma/models";
+import type { TRPCRouterRecord } from "@trpc/server";
+import { z } from "zod";
+import { prisma } from "#/db.ts";
+import type { Measurement } from "#/types.ts";
+import type { MeasurementModel } from "../../generated/prisma/models";
+import { publicProcedure, router } from "./init";
 
 async function fetchMoreMeasurements() {
-  const response = await fetch("https://mockapi-furw4tenlq-ez.a.run.app/data");
-  if (!response.ok) {
-    throw new Error(`Failed to fetch measurements: ${response.statusText}`);
-  }
-  const data = await response.json();
+	const response = await fetch("https://mockapi-furw4tenlq-ez.a.run.app/data");
+	if (!response.ok) {
+		throw new Error(`Failed to fetch measurements: ${response.statusText}`);
+	}
+	const data = await response.json();
 
-  const formattedData = data.map((item: any) => ({
-    ...item,
-    date_testing: new Date(item.date_testing),
-    date_birthdate: new Date(item.date_birthdate),
-  }));
+	const parsedData = data.map((measurement: Measurement) => ({
+		...measurement,
+		date_testing: new Date(measurement.date_testing),
+		date_birthdate: new Date(measurement.date_birthdate),
+	}));
 
-  await prisma.measurement.createMany({
-    data: formattedData,
-  });
+	await prisma.measurement.createMany({
+		data: parsedData,
+	});
 }
 
 const measurementsRouter = {
-  load: publicProcedure
-    .input(z.object({page: z.number().int().optional().default(1)}).optional())
-    .query(async (opts) => {
-      const {input} = opts;
+	load: publicProcedure
+		.input(
+			z.object({ page: z.number().int().optional().default(0) }).optional(),
+		)
+		.query(async (opts) => {
+			const { input } = opts;
 
-      let result: Measurement[] = [];
-      while (result.length < 10) {
-        const dbResults: MeasurementModel[] = await prisma.measurement.findMany({
-          skip: ((input?.page ?? 1) - 1) * 10,
-          take: 10,
-        });
+			let result: Measurement[] = [];
+			let attempts = 0;
+			const PAGE_SIZE = 10;
+			while (result.length < PAGE_SIZE && attempts < PAGE_SIZE) {
+				const dbResults: MeasurementModel[] = await prisma.measurement.findMany(
+					{
+						skip: (input?.page ?? 0) * PAGE_SIZE,
+						take: PAGE_SIZE,
+					},
+				);
 
-        result = dbResults.map((r) => ({
-          ...r,
-          date_testing: r.date_testing.toISOString(),
-          date_birthdate: r.date_birthdate.toISOString(),
-          creatine: Number(r.creatine),
-          chloride: Number(r.chloride),
-          fasting_glucose: Number(r.fasting_glucose),
-          potassium: Number(r.potassium),
-          sodium: Number(r.sodium),
-          total_calcium: Number(r.total_calcium),
-          total_protein: Number(r.total_protein),
-        }));
+				result = dbResults.map((model) => ({
+					...model,
+					date_testing: model.date_testing.toISOString(),
+					date_birthdate: model.date_birthdate.toISOString(),
+					creatine: model.creatine.toNumber(),
+					chloride: model.chloride.toNumber(),
+					fasting_glucose: model.fasting_glucose.toNumber(),
+					potassium: model.potassium.toNumber(),
+					sodium: model.sodium.toNumber(),
+					total_calcium: model.total_calcium.toNumber(),
+					total_protein: model.total_protein.toNumber(),
+				}));
 
-        if (result.length < 10) {
-          await fetchMoreMeasurements();
-        }
-      }
-      return result;
-    }),
-  reset: publicProcedure.mutation(async () => {
-    await prisma.measurement.deleteMany()
-  }),
+				if (result.length < PAGE_SIZE) {
+					await fetchMoreMeasurements();
+					attempts++;
+				}
+			}
+			return result;
+		}),
+	reset: publicProcedure.mutation(async () => {
+		await prisma.measurement.deleteMany();
+	}),
 } satisfies TRPCRouterRecord;
 
 export const appRouter = router({
-  measurements: measurementsRouter,
+	measurements: measurementsRouter,
 });
 export type AppRouter = typeof appRouter;
