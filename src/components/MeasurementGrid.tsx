@@ -1,4 +1,9 @@
-import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
+import {
+	keepPreviousData,
+	useMutation,
+	useQuery,
+	useQueryClient,
+} from "@tanstack/react-query";
 import { getRouteApi } from "@tanstack/react-router";
 import {
 	getCoreRowModel,
@@ -12,7 +17,6 @@ import {
 import { debounce } from "perfect-debounce";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTRPC } from "#/integrations/trpc/react";
-import { getQueryClient } from "#/lib/queryClient.ts";
 import type { Measurement } from "#/types.ts";
 import { ColumnVisibilityMenu } from "./ColumnVisibilityMenu";
 import { measurementColumns } from "./measurementColumns";
@@ -25,6 +29,7 @@ const PAGE_SIZE = 10;
 
 export function MeasurementGrid() {
 	const trpc = useTRPC();
+	const queryClient = useQueryClient();
 	const loaderData = routeApi.useLoaderData();
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 	const [lastPage, setLastPage] = useState(0);
@@ -50,7 +55,7 @@ export function MeasurementGrid() {
 	const resetData = useMutation(
 		trpc.measurements.reset.mutationOptions({
 			onSuccess: async () => {
-				getQueryClient().removeQueries();
+				queryClient.removeQueries();
 				setLastPage(0);
 				setPage(0);
 			},
