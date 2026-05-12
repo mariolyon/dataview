@@ -1,10 +1,11 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod";
+import { mapMeasurementModelToMeasurement } from "#/data/measurements";
 import { prisma } from "#/db.ts";
 import type { Measurement } from "#/types.ts";
+import { getPageSize } from "../../config.ts";
 import type { MeasurementModel } from "../../generated/prisma/models";
 import { publicProcedure, router } from "./init";
-import { mapMeasurementModelToMeasurement } from "#/data/measurements";
 
 async function fetchMoreMeasurements() {
 	const response = await fetch("https://mockapi-furw4tenlq-ez.a.run.app/data");
@@ -31,10 +32,10 @@ const measurementsRouter = {
 		)
 		.query(async (opts) => {
 			const { input } = opts;
+			const PAGE_SIZE = getPageSize();
 
 			let result: Measurement[] = [];
 			let attempts = 0;
-			const PAGE_SIZE = 10;
 			while (result.length < PAGE_SIZE && attempts < PAGE_SIZE) {
 				const dbResults: MeasurementModel[] = await prisma.measurement.findMany(
 					{

@@ -6,7 +6,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     alias: {
-      '#': './src',
-    },
+		"#/*": "./src/*"
+	},
   },
 })

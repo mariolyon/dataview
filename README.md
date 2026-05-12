@@ -29,6 +29,12 @@ npm install
 npm run dev
 ```
 
+By default a PAGE_SIZE of 10 is assumed,  however you can override this at launch time:
+
+```bash
+PAGE_SIZE=20 npm run dev
+```
+
 ## Testing
 
 This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:

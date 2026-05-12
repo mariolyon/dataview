@@ -39,12 +39,12 @@ When writing or modifying code in this repository, agents MUST adhere to the fol
 ### 6. Application Behavior
 
 - **Data Loading**: The application uses a hybrid approach. Initial data is fetched on the server using `createServerFn` and
-  a route loader, then passed to TanStack Query's `initialData`. Subsequent pagination is handled on the client via tRPC
-  queries. Loaded data is accumulated in a client-side state to allow for seamless sorting and pagination across all
-  previously fetched records.
+  a route loader, then passed to TanStack Query's `initialData` along with the configured `pageSize`. Subsequent pagination is
+  handled on the client via tRPC queries. Loaded data is accumulated in a client-side state to allow for seamless sorting and
+  pagination across all previously fetched records.
 - **On-Demand Data Ingestion**: When a page is requested that doesn't have sufficient data in the local database (less
-  than 10 records), the backend automatically fetches additional records from an external mock API and persists them to
-  the Prisma database.
+  than the configured page size), the backend automatically fetches additional records from an external mock API and
+  persists them to the Prisma database.
 - **Sorting**:
   - **Client-Side Sorting**: Sorting is performed entirely on the client using TanStack Table's `getSortedRowModel`.
   - **Interactive Headers**: Clicking on column headers toggles between ascending, descending, and no-sort states.
@@ -55,7 +55,8 @@ When writing or modifying code in this repository, agents MUST adhere to the fol
     scrolling.
 - **Pagination**:
   - **Zero-based Indexing**: The pagination state is managed using zero-based indexing (e.g., Page 1 is index 0).
-  - **Fixed Page Size**: Each page displays exactly 10 measurements.
+  - **Configurable Page Size**: Each page displays a set number of measurements, configurable via the `PAGE_SIZE` environment
+    variable (defaulting to 10). The value is clamped between 10 and 100 to ensure performance and usability.
   - **Dynamic Controls**: The UI features dynamic button labeling: "Next" for previously visited pages and "Load More"
     for new pages that require potentially fetching more data.
 - **State Reset**: A "Reset Data" feature is implemented that performs a destructive `deleteMany` on the measurements

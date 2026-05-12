@@ -25,18 +25,20 @@ import { TableHeader } from "./TableHeader";
 import { TableRow } from "./TableRow";
 
 const routeApi = getRouteApi("/");
-const PAGE_SIZE = 10;
 
 export function MeasurementGrid() {
 	const trpc = useTRPC();
 	const queryClient = useQueryClient();
 	const loaderData = routeApi.useLoaderData();
+	const initialMeasurements = loaderData.measurements;
+	const PAGE_SIZE = loaderData.pageSize;
+
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 	const [lastPage, setLastPage] = useState(0);
 	const [sorting, setSorting] = useState<SortingState>([]);
 
 	const [allMeasurements, setAllMeasurements] =
-		useState<Measurement[]>(loaderData);
+		useState<Measurement[]>(initialMeasurements);
 	const [page, setPage] = useState(0);
 
 	const [initialLoad, setInitialLoad] = useState(true);
@@ -44,7 +46,8 @@ export function MeasurementGrid() {
 	const loadQuery = useQuery({
 		...trpc.measurements.load.queryOptions({ page: lastPage }),
 		placeholderData: keepPreviousData,
-		initialData: lastPage === 0 && initialLoad ? loaderData : undefined,
+		initialData:
+			lastPage === 0 && initialLoad ? initialMeasurements : undefined,
 		refetchOnMount: false,
 	});
 
