@@ -43,7 +43,7 @@ const measurementsRouter = {
 					},
 				);
 
-					result = dbResults.map(mapMeasurementModelToMeasurement);
+				result = dbResults.map(mapMeasurementModelToMeasurement);
 
 				if (result.length < PAGE_SIZE) {
 					await fetchMoreMeasurements();

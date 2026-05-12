@@ -1,226 +1,12 @@
-import {
-	keepPreviousData,
-	QueryClient,
-	QueryClientProvider,
-	useMutation,
-	useQuery,
-} from "@tanstack/react-query";
-import { getRouteApi } from "@tanstack/react-router";
-import {
-	createColumnHelper,
-	flexRender,
-	getCoreRowModel,
-	useReactTable,
-} from "@tanstack/react-table";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import { useState } from "react";
 import superjson from "superjson";
-import { formatDate, labValue } from "#/data/formatters";
-import { getNextButtonText } from "#/data/measurements.ts";
-import { TRPCProvider, useTRPC } from "#/integrations/trpc/react";
+import { MeasurementGrid } from "#/components/MeasurementGrid";
+import { ResetButton } from "#/components/ResetButton";
+import { TRPCProvider } from "#/integrations/trpc/react";
 import type { AppRouter } from "#/integrations/trpc/router";
-import type { Measurement } from "#/types.ts";
-
-const routeApi = getRouteApi("/");
-
-const columnHelper = createColumnHelper<Measurement>();
-
-const columns = [
-	columnHelper.accessor("id", { header: "ID" }),
-	columnHelper.accessor("client_id", { header: "Client" }),
-	columnHelper.accessor("date_testing", {
-		header: "Test Date",
-		cell: (info) => formatDate(info.getValue()),
-	}),
-	columnHelper.accessor("date_birthdate", {
-		header: "Birthdate",
-		cell: (info) => formatDate(info.getValue()),
-	}),
-	columnHelper.accessor("gender", { header: "Gender" }),
-	columnHelper.accessor("ethnicity", { header: "Ethnicity" }),
-	columnHelper.display({
-		id: "creatine",
-		header: "Creatine",
-		cell: ({ row }) => labValue(row.original, "creatine", "creatine_unit"),
-	}),
-	columnHelper.display({
-		id: "chloride",
-		header: "Chloride",
-		cell: ({ row }) => labValue(row.original, "chloride", "chloride_unit"),
-	}),
-	columnHelper.display({
-		id: "fasting_glucose",
-		header: "Fasting Glucose",
-		cell: ({ row }) =>
-			labValue(row.original, "fasting_glucose", "fasting_glucose_unit"),
-	}),
-	columnHelper.display({
-		id: "potassium",
-		header: "Potassium",
-		cell: ({ row }) => labValue(row.original, "potassium", "potassium_unit"),
-	}),
-	columnHelper.display({
-		id: "sodium",
-		header: "Sodium",
-		cell: ({ row }) => labValue(row.original, "sodium", "sodium_unit"),
-	}),
-	columnHelper.display({
-		id: "total_calcium",
-		header: "Total Calcium",
-		cell: ({ row }) =>
-			labValue(row.original, "total_calcium", "total_calcium_unit"),
-	}),
-	columnHelper.display({
-		id: "total_protein",
-		header: "Total Protein",
-		cell: ({ row }) =>
-			labValue(row.original, "total_protein", "total_protein_unit"),
-	}),
-];
-
-function Measurements({
-	page,
-	setPage,
-	lastPage,
-	setLastPage,
-}: {
-	page: number;
-	setPage: (p: number) => void;
-	lastPage: number;
-	setLastPage: (p: number) => void;
-}) {
-	const trpc = useTRPC();
-	const loaderData = routeApi.useLoaderData();
-
-	const loadQuery = useQuery({
-		...trpc.measurements.load.queryOptions({ page }),
-		placeholderData: keepPreviousData,
-		initialData: page === 0 ? loaderData : undefined,
-		refetchOnMount: false,
-	});
-
-	const data = loadQuery.data;
-
-	const table = useReactTable({
-		data: data ?? [],
-		columns,
-		getCoreRowModel: getCoreRowModel(),
-		manualPagination: true,
-	});
-
-	return (
-		<div className="flex flex-col gap-4 overflow-x-auto">
-			<table className="min-w-full table-fixed text-sm border-collapse">
-				<thead>
-					{table.getHeaderGroups().map((headerGroup) => (
-						<tr key={headerGroup.id} className="border-b-2 border-gray-300">
-							{headerGroup.headers.map((header) => (
-								<th
-									key={header.id}
-									className="w-40 px-3 py-2 text-right font-semibold text-gray-700 whitespace-nowrap"
-								>
-									{header.isPlaceholder
-										? null
-										: flexRender(
-												header.column.columnDef.header,
-												header.getContext(),
-											)}
-								</th>
-							))}
-						</tr>
-					))}
-				</thead>
-				<tbody>
-					{table.getRowModel().rows.map((row) => (
-						<tr
-							key={row.id}
-							className="border-b border-gray-200 hover:bg-gray-50"
-						>
-							{row.getVisibleCells().map((cell) => (
-								<td
-									key={cell.id}
-									className="w-40 px-3 py-2 text-right whitespace-nowrap overflow-hidden text-ellipsis"
-								>
-									{flexRender(cell.column.columnDef.cell, cell.getContext())}
-								</td>
-							))}
-						</tr>
-					))}
-				</tbody>
-			</table>
-
-			<div className="flex items-center gap-4 mt-2">
-				<button
-					type="button"
-					onClick={() => setPage(Math.max(0, page - 1))}
-					disabled={page === 0}
-					className="px-3 py-1 border rounded disabled:opacity-50 w-28"
-				>
-					Previous
-				</button>
-				<span className="font-medium w-28">Page {page + 1}</span>
-				<button
-					type="button"
-					onClick={() => {
-						const nextPage = page + 1;
-						setPage(nextPage);
-						setLastPage(Math.max(nextPage, lastPage));
-					}}
-					disabled={!data || loadQuery.isFetching}
-					className="px-3 py-1 border rounded disabled:opacity-50 w-28"
-				>
-					{getNextButtonText(page, lastPage, loadQuery.isFetching)}
-				</button>
-				{loadQuery.isFetching && (
-					<span className="text-sm text-gray-500">Loading...</span>
-				)}
-			</div>
-		</div>
-	);
-}
-
-function makeQueryClient() {
-	return new QueryClient({
-		defaultOptions: {
-			queries: {
-				// With SSR, we usually want to set some default staleTime
-				// above 0 to avoid refetching immediately on the client
-				staleTime: 60 * 1000,
-			},
-		},
-	});
-}
-
-function ResetButton({ resetPagination }: { resetPagination: () => void }) {
-	const trpc = useTRPC();
-	const resetData = useMutation(
-		trpc.measurements.reset.mutationOptions({
-			onSuccess: async () => {
-				resetPagination();
-				await getQueryClient().invalidateQueries(
-					trpc.measurements.load.queryFilter(
-						{},
-						{
-							predicate: () => true,
-						},
-					),
-				);
-			},
-			onError: () => {},
-		}),
-	);
-
-	return (
-		<button
-			type="button"
-			onClick={() => resetData.mutate()}
-			disabled={resetData.isPending}
-			className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
-		>
-			{resetData.isPending ? "Resetting..." : "Reset Data"}
-		</button>
-	);
-}
+import { getQueryClient } from "#/lib/queryClient";
 
 function MainContent() {
 	const [page, setPage] = useState(0);
@@ -229,7 +15,7 @@ function MainContent() {
 	return (
 		<div className="p-8 flex flex-col gap-8">
 			<h1 className="text-2xl font-bold">Data View</h1>
-			<Measurements
+			<MeasurementGrid
 				page={page}
 				setPage={setPage}
 				lastPage={lastPage}
@@ -245,22 +31,6 @@ function MainContent() {
 			</div>
 		</div>
 	);
-}
-
-let browserQueryClient: QueryClient | undefined;
-
-function getQueryClient() {
-	if (typeof window === "undefined") {
-		// Server: always make a new query client
-		return makeQueryClient();
-	} else {
-		// Browser: make a new query client if we don't already have one
-		// This is very important, so we don't re-make a new client if React
-		// suspends during the initial render. This may not be needed if we
-		// have a suspense boundary BELOW the creation of the query client
-		if (!browserQueryClient) browserQueryClient = makeQueryClient();
-		return browserQueryClient;
-	}
 }
 
 export function App() {
