@@ -15,7 +15,7 @@ import {
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import { useState } from "react";
 import superjson from "superjson";
-import { getNextButtonText } from "#/data/measurements";
+import { formatDate, labValue } from "#/data/formatters";
 import { TRPCProvider, useTRPC } from "#/integrations/trpc/react";
 import type { AppRouter } from "#/integrations/trpc/router";
 import type { Measurement } from "#/types.ts";
@@ -25,21 +25,55 @@ const routeApi = getRouteApi("/");
 const columnHelper = createColumnHelper<Measurement>();
 
 const columns = [
-	columnHelper.accessor("id", {
-		cell: (info) => info.getValue(),
-		footer: (info) => info.column.id,
-	}),
-	columnHelper.accessor("client_id", {
-		cell: (info) => info.getValue(),
-		footer: (info) => info.column.id,
-	}),
+	columnHelper.accessor("id", { header: "ID" }),
+	columnHelper.accessor("client_id", { header: "Client" }),
 	columnHelper.accessor("date_testing", {
-		cell: (info) => info.getValue(),
-		footer: (info) => info.column.id,
+		header: "Test Date",
+		cell: (info) => formatDate(info.getValue()),
 	}),
 	columnHelper.accessor("date_birthdate", {
-		cell: (info) => info.getValue(),
-		footer: (info) => info.column.id,
+		header: "Birthdate",
+		cell: (info) => formatDate(info.getValue()),
+	}),
+	columnHelper.accessor("gender", { header: "Gender" }),
+	columnHelper.accessor("ethnicity", { header: "Ethnicity" }),
+	columnHelper.display({
+		id: "creatine",
+		header: "Creatine",
+		cell: ({ row }) => labValue(row.original, "creatine", "creatine_unit"),
+	}),
+	columnHelper.display({
+		id: "chloride",
+		header: "Chloride",
+		cell: ({ row }) => labValue(row.original, "chloride", "chloride_unit"),
+	}),
+	columnHelper.display({
+		id: "fasting_glucose",
+		header: "Fasting Glucose",
+		cell: ({ row }) =>
+			labValue(row.original, "fasting_glucose", "fasting_glucose_unit"),
+	}),
+	columnHelper.display({
+		id: "potassium",
+		header: "Potassium",
+		cell: ({ row }) => labValue(row.original, "potassium", "potassium_unit"),
+	}),
+	columnHelper.display({
+		id: "sodium",
+		header: "Sodium",
+		cell: ({ row }) => labValue(row.original, "sodium", "sodium_unit"),
+	}),
+	columnHelper.display({
+		id: "total_calcium",
+		header: "Total Calcium",
+		cell: ({ row }) =>
+			labValue(row.original, "total_calcium", "total_calcium_unit"),
+	}),
+	columnHelper.display({
+		id: "total_protein",
+		header: "Total Protein",
+		cell: ({ row }) =>
+			labValue(row.original, "total_protein", "total_protein_unit"),
 	}),
 ];
 
@@ -74,13 +108,16 @@ function Measurements({
 	});
 
 	return (
-		<div className="flex flex-col gap-4">
-			<table className="border-separate border-spacing-2">
+		<div className="flex flex-col gap-4 overflow-x-auto">
+			<table className="min-w-full table-fixed text-sm border-collapse">
 				<thead>
 					{table.getHeaderGroups().map((headerGroup) => (
-						<tr key={headerGroup.id}>
+						<tr key={headerGroup.id} className="border-b-2 border-gray-300">
 							{headerGroup.headers.map((header) => (
-								<th key={header.id} className="p-0 text-left font-bold">
+								<th
+									key={header.id}
+									className="w-40 px-3 py-2 text-right font-semibold text-gray-700 whitespace-nowrap"
+								>
 									{header.isPlaceholder
 										? null
 										: flexRender(
@@ -94,9 +131,15 @@ function Measurements({
 				</thead>
 				<tbody>
 					{table.getRowModel().rows.map((row) => (
-						<tr key={row.id}>
+						<tr
+							key={row.id}
+							className="border-b border-gray-200 hover:bg-gray-50"
+						>
 							{row.getVisibleCells().map((cell) => (
-								<td key={cell.id} className="p-0">
+								<td
+									key={cell.id}
+									className="w-40 px-3 py-2 text-right whitespace-nowrap overflow-hidden text-ellipsis"
+								>
 									{flexRender(cell.column.columnDef.cell, cell.getContext())}
 								</td>
 							))}
@@ -125,7 +168,7 @@ function Measurements({
 					disabled={!data || loadQuery.isFetching}
 					className="px-3 py-1 border rounded disabled:opacity-50 w-28"
 				>
-					{page < lastPage ? "Next" : "Load More"}
+					{getNextButtonText(page, lastPage, loadQuery.isFetching)}
 				</button>
 				{loadQuery.isFetching && (
 					<span className="text-sm text-gray-500">Loading...</span>
