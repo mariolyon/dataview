@@ -16,6 +16,7 @@ import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import { useState } from "react";
 import superjson from "superjson";
 import { formatDate, labValue } from "#/data/formatters";
+import { getNextButtonText } from "#/data/measurements.ts";
 import { TRPCProvider, useTRPC } from "#/integrations/trpc/react";
 import type { AppRouter } from "#/integrations/trpc/router";
 import type { Measurement } from "#/types.ts";
