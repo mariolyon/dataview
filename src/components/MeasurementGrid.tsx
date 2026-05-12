@@ -30,8 +30,9 @@ export function MeasurementGrid() {
 	const [lastPage, setLastPage] = useState(0);
 	const [sorting, setSorting] = useState<SortingState>([]);
 
-	const [allMeasurements, setAllMeasurements] = useState<Measurement[]>([]);
-	const [localPageIndex, setLocalPageIndex] = useState(0);
+	const [allMeasurements, setAllMeasurements] =
+		useState<Measurement[]>(loaderData);
+	const [page, setPage] = useState(0);
 
 	const [initialLoad, setInitialLoad] = useState(true);
 
@@ -61,11 +62,12 @@ export function MeasurementGrid() {
 		if (loadQuery.data && !loadQuery.isPlaceholderData) {
 			if (lastPage === 0) {
 				setAllMeasurements(loadQuery.data);
-				setLocalPageIndex(0);
+				setPage(0);
 			} else {
 				setAllMeasurements((prev) => {
 					return [...prev, ...loadQuery.data];
 				});
+				setPage(lastPage);
 			}
 		}
 	}, [loadQuery.data, loadQuery.isPlaceholderData, lastPage]);
@@ -85,7 +87,7 @@ export function MeasurementGrid() {
 			columnVisibility,
 			sorting,
 			pagination: {
-				pageIndex: localPageIndex,
+				pageIndex: page,
 				pageSize: PAGE_SIZE,
 			},
 		},
@@ -94,9 +96,9 @@ export function MeasurementGrid() {
 		onPaginationChange: (updater) => {
 			const nextState =
 				typeof updater === "function"
-					? updater({ pageIndex: localPageIndex, pageSize: PAGE_SIZE })
+					? updater({ pageIndex: page, pageSize: PAGE_SIZE })
 					: updater;
-			setLocalPageIndex(nextState.pageIndex);
+			setPage(nextState.pageIndex);
 		},
 	});
 
@@ -104,11 +106,10 @@ export function MeasurementGrid() {
 	useEffect(() => {
 		const pageCount = table.getPageCount();
 		if (pageCount > 0) {
-			setLocalPageIndex(pageCount - 1);
+			setPage(pageCount - 1);
 			table.setPageIndex(pageCount - 1);
 		}
-		//}
-	}, [table.getPageCount()]);
+	}, [table]);
 
 	const handleLoadMore = useCallback(() => {
 		setLastPage(lastPage + 1);

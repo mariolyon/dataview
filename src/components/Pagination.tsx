@@ -1,8 +1,8 @@
 import type { Table } from "@tanstack/react-table";
-import { ResetButton } from "#/components/ResetButton.tsx";
 import { LoadMoreButton } from "#/components/LoadMoreButton.tsx";
-import { PreviousButton } from "#/components/PreviousButton.tsx";
 import { NextButton } from "#/components/NextButton.tsx";
+import { PreviousButton } from "#/components/PreviousButton.tsx";
+import { ResetButton } from "#/components/ResetButton.tsx";
 
 interface PaginationProps {
 	table: Table<any>;
