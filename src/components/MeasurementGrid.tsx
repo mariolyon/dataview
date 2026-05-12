@@ -296,7 +296,8 @@ export function MeasurementGrid() {
 										"whitespace-nowrap px-2 py-2 text-right font-semibold text-gray-700 " +
 										(header.column.getCanSort()
 											? "cursor-pointer select-none"
-											: "")
+											: "") +
+										(header.id === "rowNumber" ? " sticky left-0 bg-white z-10" : "")
 									}
 									onClick={header.column.getToggleSortingHandler()}
 								>
@@ -321,13 +322,18 @@ export function MeasurementGrid() {
 						{table.getRowModel().rows.map((row) => (
 							<div
 								key={row.id}
-								className="grid border-b border-gray-200 hover:bg-gray-50"
+								className="group grid border-b border-gray-200 hover:bg-gray-50"
 								style={{ gridTemplateColumns }}
 							>
 								{row.getVisibleCells().map((cell) => (
 									<div
 										key={cell.id}
-										className="overflow-hidden text-ellipsis whitespace-nowrap px-2 py-2 text-right"
+										className={
+											"overflow-hidden text-ellipsis whitespace-nowrap px-2 py-2 text-right " +
+											(cell.column.id === "rowNumber"
+												? "sticky left-0 bg-white group-hover:bg-gray-50 z-10"
+												: "")
+										}
 									>
 										{flexRender(cell.column.columnDef.cell, cell.getContext())}
 									</div>
