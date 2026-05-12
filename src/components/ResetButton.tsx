@@ -1,38 +1,18 @@
-import { useMutation } from "@tanstack/react-query";
-import { useTRPC } from "#/integrations/trpc/react";
-import { getQueryClient } from "#/lib/queryClient";
-
 export function ResetButton({
-	resetPagination,
+	onReset,
+	isResetting,
 }: {
-	resetPagination: () => void;
+	onReset: () => void;
+	isResetting: boolean;
 }) {
-	const trpc = useTRPC();
-	const resetData = useMutation(
-		trpc.measurements.reset.mutationOptions({
-			onSuccess: async () => {
-				resetPagination();
-				await getQueryClient().invalidateQueries(
-					trpc.measurements.load.queryFilter(
-						{},
-						{
-							predicate: () => true,
-						},
-					),
-				);
-			},
-			onError: () => {},
-		}),
-	);
-
 	return (
 		<button
 			type="button"
-			onClick={() => resetData.mutate()}
-			disabled={resetData.isPending}
+			onClick={onReset}
+			disabled={isResetting}
 			className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-50"
 		>
-			{resetData.isPending ? "Resetting..." : "Reset Data"}
+			{isResetting ? "Resetting..." : "Reset Data"}
 		</button>
 	);
 }
