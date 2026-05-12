@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Prisma } from "../generated/prisma/client";
-import {
-	getNextButtonText,
-	mapMeasurementModelToMeasurement,
-} from "./measurements";
+import { mapMeasurementModelToMeasurement } from "./measurements";
 
 describe("measurements data utilities", () => {
 	describe("mapMeasurementModelToMeasurement", () => {
@@ -42,20 +39,6 @@ describe("measurements data utilities", () => {
 			expect(result.creatine).toBe(1.2);
 			expect(result.chloride).toBe(100);
 			expect(result.fasting_glucose).toBe(90);
-		});
-	});
-
-	describe("getNextButtonText", () => {
-		it("should return 'Loading...' when fetching", () => {
-			expect(getNextButtonText(0, 0, true)).toBe("Loading...");
-		});
-
-		it("should return 'Next' when page is less than lastPage", () => {
-			expect(getNextButtonText(0, 1, false)).toBe("Next");
-		});
-
-		it("should return 'Load More' when page is equal to lastPage", () => {
-			expect(getNextButtonText(1, 1, false)).toBe("Load More");
 		});
 	});
 });

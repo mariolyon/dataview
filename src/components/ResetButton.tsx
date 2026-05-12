@@ -1,3 +1,5 @@
+import { Button } from "./Button";
+
 export function ResetButton({
 	onReset,
 	isResetting,
@@ -6,13 +8,14 @@ export function ResetButton({
 	isResetting: boolean;
 }) {
 	return (
-		<button
-			type="button"
+		<Button
 			onClick={onReset}
 			disabled={isResetting}
-			className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-50"
+			bgColor="bg-red-600"
+			textColor="text-white"
+			className="hover:bg-red-700"
 		>
 			{isResetting ? "Resetting..." : "Reset Data"}
-		</button>
+		</Button>
 	);
 }

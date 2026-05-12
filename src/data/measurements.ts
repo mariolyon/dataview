@@ -17,12 +17,3 @@ export function mapMeasurementModelToMeasurement(
 		total_protein: model.total_protein.toNumber(),
 	};
 }
-
-export function getNextButtonText(
-	page: number,
-	lastPage: number,
-	isFetching: boolean,
-): string {
-	if (isFetching) return "Loading...";
-	return page < lastPage ? "Next" : "Load More";
-}
