@@ -31,6 +31,23 @@ When writing or modifying code in this repository, agents MUST adhere to the fol
 ### 5. Formatting & Linting (Biome)
 
 - **Tooling**: This project uses Biome, not Prettier or ESLint.
+- **Indentation**: Use **tabs**, not spaces, for indentation.
 - **Commands**: Run `npm run format` and `npm run lint` to automatically fix style issues. Ensure code complies with
   Biome before completing a task.
+
+### 6. Application Behavior
+
+- **Data Loading**: The application uses a hybrid approach. Initial data is fetched on the server using `createServerFn` and
+  a route loader, then passed to TanStack Query's `initialData`. Subsequent pagination is handled on the client via tRPC
+  queries.
+- **On-Demand Data Ingestion**: When a page is requested that doesn't have sufficient data in the local database (less
+  than 10 records), the backend automatically fetches additional records from an external mock API and persists them to
+  the Prisma database.
+- **Pagination**:
+  - **Zero-based Indexing**: The pagination state is managed using zero-based indexing (e.g., Page 1 is index 0).
+  - **Fixed Page Size**: Each page displays exactly 10 measurements.
+  - **Dynamic Controls**: The UI features dynamic button labeling: "Next" for previously visited pages and "Load More"
+    for new pages that require potentially fetching more data.
+- **State Reset**: A "Reset Data" feature is implemented that performs a destructive `deleteMany` on the measurements
+  table and resets all local pagination state and query caches.
 
