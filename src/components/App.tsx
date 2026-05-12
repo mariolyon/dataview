@@ -45,9 +45,13 @@ const columns = [
 function Measurements({
 	page,
 	setPage,
+	lastPage,
+	setLastPage,
 }: {
 	page: number;
 	setPage: (p: number) => void;
+	lastPage: number;
+	setLastPage: (p: number) => void;
 }) {
 	const trpc = useTRPC();
 	const loaderData = routeApi.useLoaderData();
@@ -65,6 +69,7 @@ function Measurements({
 		data: data ?? [],
 		columns,
 		getCoreRowModel: getCoreRowModel(),
+		manualPagination: true,
 	});
 
 	return (
@@ -104,18 +109,22 @@ function Measurements({
 					type="button"
 					onClick={() => setPage(Math.max(0, page - 1))}
 					disabled={page === 0}
-					className="px-3 py-1 border rounded disabled:opacity-50"
+					className="px-3 py-1 border rounded disabled:opacity-50 w-28"
 				>
 					Previous
 				</button>
-				<span className="font-medium">Page {page + 1}</span>
+				<span className="font-medium w-28">Page {page + 1}</span>
 				<button
 					type="button"
-					onClick={() => setPage(page + 1)}
+					onClick={() => {
+						const nextPage = page + 1;
+						setPage(nextPage);
+						setLastPage(Math.max(nextPage, lastPage));
+					}}
 					disabled={!data || loadQuery.isFetching}
-					className="px-3 py-1 border rounded disabled:opacity-50"
+					className="px-3 py-1 border rounded disabled:opacity-50 w-28"
 				>
-					Next
+					{page < lastPage ? "Next" : "Load More"}
 				</button>
 				{loadQuery.isFetching && (
 					<span className="text-sm text-gray-500">Loading...</span>
@@ -137,12 +146,12 @@ function makeQueryClient() {
 	});
 }
 
-function ResetButton({ setPage }: { setPage: (p: number) => void }) {
+function ResetButton({ resetPagination }: { resetPagination: () => void }) {
 	const trpc = useTRPC();
 	const resetData = useMutation(
 		trpc.measurements.reset.mutationOptions({
 			onSuccess: async () => {
-				setPage(0);
+				resetPagination();
 				await getQueryClient().invalidateQueries(
 					trpc.measurements.load.queryFilter(
 						{},
@@ -170,13 +179,24 @@ function ResetButton({ setPage }: { setPage: (p: number) => void }) {
 
 function MainContent() {
 	const [page, setPage] = useState(0);
+	const [lastPage, setLastPage] = useState(0);
 
 	return (
 		<div className="p-8 flex flex-col gap-8">
 			<h1 className="text-2xl font-bold">Data View</h1>
-			<Measurements page={page} setPage={setPage} />
+			<Measurements
+				page={page}
+				setPage={setPage}
+				lastPage={lastPage}
+				setLastPage={setLastPage}
+			/>
 			<div>
-				<ResetButton setPage={setPage} />
+				<ResetButton
+					resetPagination={() => {
+						setPage(0);
+						setLastPage(0);
+					}}
+				/>
 			</div>
 		</div>
 	);
