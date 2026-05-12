@@ -51,7 +51,6 @@ export function MeasurementGrid() {
 		trpc.measurements.reset.mutationOptions({
 			onSuccess: async () => {
 				getQueryClient().removeQueries();
-				setAllMeasurements([]);
 				setLastPage(0);
 				setPage(0);
 			},
