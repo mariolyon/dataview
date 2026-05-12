@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm *)"
+      "Bash(npm *)",
+      "Bash(curl -s *)",
+      "Bash(npx tsc *)",
+      "Bash(node *)",
+      "WebFetch(*)",
+      "Bash(npx tsx *)",
+      "Skill(update-config)",
+      "Bash(npx playwright *)",
+      "Bash(npx msw *)"
     ]
   }
 }
