@@ -9,7 +9,9 @@
       "Bash(npx tsx *)",
       "Skill(update-config)",
       "Bash(npx playwright *)",
-      "Bash(npx msw *)"
+      "Bash(npx msw *)",
+      "WebSearch",
+      "Bash(grep *)"
     ]
   }
 }

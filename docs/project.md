@@ -40,10 +40,19 @@ When writing or modifying code in this repository, agents MUST adhere to the fol
 
 - **Data Loading**: The application uses a hybrid approach. Initial data is fetched on the server using `createServerFn` and
   a route loader, then passed to TanStack Query's `initialData`. Subsequent pagination is handled on the client via tRPC
-  queries.
+  queries. Loaded data is accumulated in a client-side state to allow for seamless sorting and pagination across all
+  previously fetched records.
 - **On-Demand Data Ingestion**: When a page is requested that doesn't have sufficient data in the local database (less
   than 10 records), the backend automatically fetches additional records from an external mock API and persists them to
   the Prisma database.
+- **Sorting**:
+  - **Client-Side Sorting**: Sorting is performed entirely on the client using TanStack Table's `getSortedRowModel`.
+  - **Interactive Headers**: Clicking on column headers toggles between ascending, descending, and no-sort states.
+- **Column Management**:
+  - **Visibility Toggle**: Users can hide or show individual columns (except the row number column) using a visibility
+    menu.
+  - **Sticky Columns**: The row number (`#`) column is pinned to the left, remaining visible during horizontal
+    scrolling.
 - **Pagination**:
   - **Zero-based Indexing**: The pagination state is managed using zero-based indexing (e.g., Page 1 is index 0).
   - **Fixed Page Size**: Each page displays exactly 10 measurements.
