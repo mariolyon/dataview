@@ -37,8 +37,7 @@ export const measurementColumns = [
 	}),
 	columnHelper.accessor("potassium", {
 		header: "Potassium",
-		cell: ({ row }) =>
-			labValue(row.original, "potassium", "potassium_unit"),
+		cell: ({ row }) => labValue(row.original, "potassium", "potassium_unit"),
 	}),
 	columnHelper.accessor("sodium", {
 		header: "Sodium",

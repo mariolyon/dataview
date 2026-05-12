@@ -1,4 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
+import superjson from "superjson";
 
 function makeQueryClient() {
 	return new QueryClient({
@@ -8,6 +9,8 @@ function makeQueryClient() {
 				// above 0 to avoid refetching immediately on the client
 				staleTime: 60 * 1000,
 			},
+			dehydrate: { serializeData: superjson.serialize },
+			hydrate: { deserializeData: superjson.deserialize },
 		},
 	});
 }
