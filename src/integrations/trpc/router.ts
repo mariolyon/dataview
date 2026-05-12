@@ -4,6 +4,7 @@ import { prisma } from "#/db.ts";
 import type { Measurement } from "#/types.ts";
 import type { MeasurementModel } from "../../generated/prisma/models";
 import { publicProcedure, router } from "./init";
+import { mapMeasurementModelToMeasurement } from "#/data/measurements";
 
 async function fetchMoreMeasurements() {
 	const response = await fetch("https://mockapi-furw4tenlq-ez.a.run.app/data");
@@ -42,18 +43,7 @@ const measurementsRouter = {
 					},
 				);
 
-				result = dbResults.map((model) => ({
-					...model,
-					date_testing: model.date_testing.toISOString(),
-					date_birthdate: model.date_birthdate.toISOString(),
-					creatine: model.creatine.toNumber(),
-					chloride: model.chloride.toNumber(),
-					fasting_glucose: model.fasting_glucose.toNumber(),
-					potassium: model.potassium.toNumber(),
-					sodium: model.sodium.toNumber(),
-					total_calcium: model.total_calcium.toNumber(),
-					total_protein: model.total_protein.toNumber(),
-				}));
+					result = dbResults.map(mapMeasurementModelToMeasurement);
 
 				if (result.length < PAGE_SIZE) {
 					await fetchMoreMeasurements();

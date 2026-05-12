@@ -28,10 +28,11 @@ When writing or modifying code in this repository, agents MUST adhere to the fol
 - **Subpath Imports**: Use the `#/*` prefix for all internal absolute imports, which resolves to `./src/*` as defined in
   `package.json` (e.g., `import { Type } from "#/types.ts"`).
 
-### 5. Formatting & Linting (Biome)
-
+### 5. Code Style
+- Use tabs for indentation.
+- Do not attempt to convert tabs to spaces.
+- If you see spaces, convert them to tabs to match the project style.
 - **Tooling**: This project uses Biome, not Prettier or ESLint.
-- **Indentation**: Use **tabs**, not spaces, for indentation.
 - **Commands**: Run `npm run format` and `npm run lint` to automatically fix style issues. Ensure code complies with
   Biome before completing a task.
 
