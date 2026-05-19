@@ -13,3 +13,5 @@ __unconfig*
 todos.json
 k8s/secret.yaml
 .env.production
+coverage/src/generated/prisma
+coverage
