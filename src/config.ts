@@ -3,14 +3,15 @@ export function getPageSize(): number {
 	const envPageSize =
 		typeof process !== "undefined" ? process.env.PAGE_SIZE : undefined;
 
-	if (!envPageSize) return 10;
+	if (!envPageSize) return DEFAULT_PAGE_SIZE;
 
-	const parsed = Number.parseInt(envPageSize, 10);
-	if (Number.isNaN(parsed)) return 10;
+	const parsed = Number.parseInt(envPageSize);
+	if (Number.isNaN(parsed)) return DEFAULT_PAGE_SIZE;
 
 	// Clamp between 10 and 100
-	return Math.min(Math.max(parsed, 10), 100);
+	return Math.min(Math.max(parsed, DEFAULT_PAGE_SIZE), MAX_PAGE_SIZE);
 }
 
 // Default for client-side if not provided via loader
 export const DEFAULT_PAGE_SIZE = 10;
+export const MAX_PAGE_SIZE = 100;
