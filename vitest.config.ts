@@ -5,6 +5,8 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
+    globalSetup: ['./src/test/global-setup.ts'],
+    pool: 'forks',
     alias: {
 		"#/*": "./src/*"
 	},

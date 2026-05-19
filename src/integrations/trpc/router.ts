@@ -1,10 +1,12 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod";
-import { mapMeasurementModelToMeasurement } from "#/data/measurements";
-import { prisma } from "#/db.ts";
+import {
+	createManyMeasurements,
+	deleteAllMeasurements,
+	getMeasurements,
+} from "#/data/measurements";
 import type { Measurement } from "#/types.ts";
 import { getPageSize } from "../../config.ts";
-import type { MeasurementModel } from "../../generated/prisma/models";
 import { publicProcedure, router } from "./init";
 
 async function fetchMoreMeasurements() {
@@ -20,9 +22,7 @@ async function fetchMoreMeasurements() {
 		date_birthdate: new Date(measurement.date_birthdate),
 	}));
 
-	await prisma.measurement.createMany({
-		data: parsedData,
-	});
+	await createManyMeasurements(parsedData);
 }
 
 const measurementsRouter = {
@@ -37,14 +37,7 @@ const measurementsRouter = {
 			let result: Measurement[] = [];
 			let attempts = 0;
 			while (result.length < PAGE_SIZE && attempts < PAGE_SIZE) {
-				const dbResults: MeasurementModel[] = await prisma.measurement.findMany(
-					{
-						skip: (input?.page ?? 0) * PAGE_SIZE,
-						take: PAGE_SIZE,
-					},
-				);
-
-				result = dbResults.map(mapMeasurementModelToMeasurement);
+				result = await getMeasurements(input?.page ?? 0);
 
 				if (result.length < PAGE_SIZE) {
 					await fetchMoreMeasurements();
@@ -54,7 +47,7 @@ const measurementsRouter = {
 			return result;
 		}),
 	reset: publicProcedure.mutation(async () => {
-		await prisma.measurement.deleteMany();
+		await deleteAllMeasurements();
 	}),
 } satisfies TRPCRouterRecord;
 
