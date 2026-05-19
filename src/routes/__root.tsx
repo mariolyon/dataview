@@ -9,7 +9,7 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import type { AppRouter } from "#/integrations/trpc/router";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
-import appCss from "../styles.css?url";
+import "../styles.css";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
@@ -27,17 +27,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 		],
-		links: [
-			{
-				rel: "preload",
-				as: "style",
-				href: appCss,
-			},
-			{
-				rel: "stylesheet",
-				href: appCss,
-			},
-		],
+		links: [],
 		title: "DataView",
 	}),
 	shellComponent: RootDocument,
