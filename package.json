@@ -18,6 +18,7 @@
     "db:pull": "dotenv -e .env.${NODE_ENV:-local} -- prisma db pull",
     "db:push": "dotenv -e .env.${NODE_ENV:-local} -- prisma db push",
     "db:migrate": "dotenv -e .env.${NODE_ENV:-local} -- prisma migrate dev",
+    "db:migrate:reset": "dotenv -e .env.${NODE_ENV:-local} -- prisma migrate reset",
     "db:studio": "dotenv -e .env.${NODE_ENV:-local} -- prisma studio"
   },
   "dependencies": {
